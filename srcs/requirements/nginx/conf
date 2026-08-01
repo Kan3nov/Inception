@@ -1,0 +1,21 @@
+http {
+	server{
+		listen 443 ssl;
+		ssl_protocols TLSv1.2 TLSv1.3;
+		ssl_certificate /etc/ssl/certs/selfsigned-nginx.crt;
+		ssl_certificate_key /etc/ssl/private/selfsigned-nginx.key;
+
+		server_name klafi.42.fr;
+		root /var/www/html;
+
+		index index.php index.html;
+
+		location ~ \ .php$ {
+			include fastcgi_params;
+			fastcgi_pass wordpress:9000
+		}
+	}
+}
+
+events {
+}

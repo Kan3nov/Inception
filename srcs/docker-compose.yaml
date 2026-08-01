@@ -1,0 +1,27 @@
+services:
+  nginx:
+    build: ./requirements/nginx
+    depends_on:
+      wordpress:
+
+  wordpress:
+    build: ./requirements/wordpress
+    depends_on:
+      mariadb:
+          condition: service_healthy
+
+  mariadb:
+    build: ./requirements/mariadb
+    volumes:
+      - /home/kan3nov/data/db_volume:/var/lib/mysql # user should be changed later
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  web_data:
+
+  db_volume:

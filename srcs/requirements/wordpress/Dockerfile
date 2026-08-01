@@ -1,0 +1,5 @@
+FROM debian:12
+
+WORKDIR /
+
+ENTRYPOINT ["sh"]
