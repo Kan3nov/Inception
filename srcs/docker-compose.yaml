@@ -1,27 +1,60 @@
 services:
   nginx:
     build: ./requirements/nginx
+    ports:
+      - "443:443"
+    volumes:
+      - web_data:/www # user should be changed later
     depends_on:
       wordpress:
+        condition: service_started
+    networks:
+      internal_env:
+      www:
+    env_file: "meow.env"
+    restart: on-failure
 
   wordpress:
     build: ./requirements/wordpress
+    volumes:
+      - web_data:/www # user should be changed later
     depends_on:
       mariadb:
           condition: service_healthy
+    networks:
+      internal_env:
+    env_file: "meow.env"
+    restart: on-failure
 
   mariadb:
     build: ./requirements/mariadb
     volumes:
-      - /home/kan3nov/data/db_volume:/var/lib/mysql # user should be changed later
+      - db_volume:/var/lib/mysql # user should be changed later
+    networks:
+      internal_env:
+    restart: on-failure
+    env_file: "meow.env"
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 2s
       retries: 3
 
 volumes:
   web_data:
-
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/kan3nov/data/web_data
+      o: bind
   db_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/kan3nov/data/db_volume
+      o: bind
+networks:
+  internal_env:
+    driver: bridge
+  www:
+    driver: ipvlan

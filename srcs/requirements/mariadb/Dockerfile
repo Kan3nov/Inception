@@ -2,14 +2,14 @@ FROM debian:12
 
 WORKDIR /app
 
-RUN apt update && apt install mariadb-server mariadb-client galera-4
+RUN apt update && apt install mariadb-server mariadb-client galera-4 -y
 
-RUN echo '\n y root root y y y y' | mysql_secure_installation
+COPY tools/entry.sh .
 
+RUN chmod +x entry.sh
 
-RUN mariadb && create user wp@"%" identified by "wp_pass"; grant all on *.* to "wp"@"%"; create user kanana@"%" identified by "kanana_pass"; grant select on *.* to "kanana"@"%";
+RUN sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
+EXPOSE 3306
 
-COPY tools/healtcheck.sh .
-
-CMD ["mariadb"]
+CMD ["./entry.sh"]

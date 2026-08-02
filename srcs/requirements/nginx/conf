@@ -1,21 +1,25 @@
+events {}
+
 http {
-	server{
-		listen 443 ssl;
-		ssl_protocols TLSv1.2 TLSv1.3;
-		ssl_certificate /etc/ssl/certs/selfsigned-nginx.crt;
-		ssl_certificate_key /etc/ssl/private/selfsigned-nginx.key;
+    server {
+        listen 443 ssl;
+        server_name klafi.42.fr;
 
-		server_name klafi.42.fr;
-		root /var/www/html;
+        ssl_certificate     /etc/ssl/certs/selfsigned-nginx.crt;
+        ssl_certificate_key /etc/ssl/private/selfsigned-nginx.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
 
-		index index.php index.html;
+        root /www;
+        index index.php index.html;
 
-		location ~ \ .php$ {
-			include fastcgi_params;
-			fastcgi_pass wordpress:9000
-		}
-	}
-}
+        location / {
+            try_files $uri $uri/ /index.php?$args;
+        }
 
-events {
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_pass wordpress:9000;
+        }
+    }
 }

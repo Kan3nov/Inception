@@ -8,8 +8,8 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private
      -subj "/C=JO/ST=Irbid/L=Irbid/O=42/CN=klafi.42.fr" 
 
 COPY conf /etc/nginx/nginx.conf
-COPY index.html /var/www/html/index.html
+COPY index.html /www/index.html
 
-expose 443
+EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
